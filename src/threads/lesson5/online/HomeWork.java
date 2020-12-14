@@ -49,7 +49,7 @@ public class HomeWork {
         long timeStart = System.currentTimeMillis();
         createArray(arr);
         System.out.println("Время работы без потоков, сек: " + (float) (System.currentTimeMillis() - timeStart) / 1000);
-        
+
         //расчет массива в потоках
         initArray(arr);
         timeStart = System.currentTimeMillis();
@@ -57,6 +57,11 @@ public class HomeWork {
         System.out.println("Время работы в 2 потока, сек: " + (float) (System.currentTimeMillis() - timeStart) / 1000);
 
     }
+
+    /**
+     * инициализация массива 1
+     * @param arr
+     */
     public static void initArray(float[] arr) {
         for (int i = 0; i < size; i++) {
             arr[i] = 1;
