@@ -36,69 +36,73 @@ public class HomeWork {
      * }
      * Для второго метода замеряете время разбивки массива на 2, просчета каждого из двух массивов и склейки.
      *
-     * @param args
      */
 
-    static final int size = 10;
-    static final int h = size / 2;
-//    float[] arr = new float[size];
-//static float[] a1 = new float[size/2];
-//    static float[] a2 = new float[size/2];
+    static final int size = 10000000;               // длина вычисляемого массива
+    static final int h = size / 2;                  // длина массива для обработки в потоках
 
     public static void main(String[] args) {
         float[] arr = new float[size];
-        for (int i = 0; i < size; i++) {
-            arr[i] = 1;
-        }
-        System.out.println(arr.);
+
+        // расчет массива без потоков
+        initArray(arr);
         long timeStart = System.currentTimeMillis();
         createArray(arr);
         System.out.println("Время работы без потоков, сек: " + (float) (System.currentTimeMillis() - timeStart) / 1000);
-        System.out.println(arr);
-
-        for (int i = 0; i < size; i++) {
-            arr[i] = 1;
-        }
-        System.out.println(arr);
+        
+        //расчет массива в потоках
+        initArray(arr);
         timeStart = System.currentTimeMillis();
         createArrayThread(arr);
         System.out.println("Время работы в 2 потока, сек: " + (float) (System.currentTimeMillis() - timeStart) / 1000);
 
-        System.out.println(arr);
+    }
+    public static void initArray(float[] arr) {
+        for (int i = 0; i < size; i++) {
+            arr[i] = 1;
+        }
     }
 
+    /**
+     * метод вычисления массива без потока, последовательно
+     * @param arr
+     */
     public static void createArray(float[] arr) {
         for (int i = 0; i < size; i++) {
             arr[i] = (float) (arr[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
         }
     }
 
+    /**
+     * метод вычисления массива в 2 потока
+     * не стал создавать массив массовов для универсальности разбиения - h. т.к. при разбиение исходного масива на 3 части такой подход не сработает.
+     * т.к. задача была понять суть потоков и работы со сслыками, то выполнил ее простым не универсальным способом
+     * @param arr
+     */
     public static void createArrayThread(float[] arr) {
-        float[] a1 = new float[size / 2];
-        float[] a2 = new float[size / 2];
+        float[] a1 = new float[h];
+        float[] a2 = new float[h];
+
+        // бъем массив на части
         System.arraycopy(arr, 0, a1, 0, h);
         System.arraycopy(arr, h, a2, 0, h);
-//        Runnable r = HomeWork::calcArray;
-//        new Thread(r, "Thread#0").start();
-//        new Thread(r, "Thread#1").start();
+
+        // запускаем потоки на вычисление каждой части
         HomeWork.MyThread t0 = new HomeWork.MyThread("MyThread1", a1);
-        HomeWork.MyThread t1 = new HomeWork.MyThread("MyThread1", a2);
+        HomeWork.MyThread t1 = new HomeWork.MyThread("MyThread2", a2);
+
         try {
+            // ждем пока выполнятся потоки
             t0.join();
             t1.join();
+
+            // соединяем массивы в один
             System.arraycopy(a1, 0, arr, 0, h);
             System.arraycopy(a2, 0, arr, h, h);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-
-    private synchronized static void calcArray(float[] arr) {
-        for (int i = 0; i < size; i++) {
-            arr[i] = (float) (arr[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
-        }
-    }
-
 
     static class MyThread extends Thread {
 
@@ -112,9 +116,20 @@ public class HomeWork {
 
         @Override
         public void run() {
-            for (int i = 0; i < size/2; i++) {
+            for (int i = 0; i < h; i++) {
                 arr[i] = (float) (arr[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
             }
         }
+    }
+
+    /**
+     * Метод распечатки массива в консоле
+     * @param arr - выводимый массив
+     */
+    public static void printArray(float[] arr) {
+        for (int i = 0; i < h; i++) {
+            System.out.print(arr[i] + " | ");
+        }
+        System.out.println("");
     }
 }
