@@ -1,5 +1,7 @@
 package threads.lesson5.online;
 
+import java.util.Arrays;
+
 public class HomeWork {
     /**
      * 1. Необходимо написать два метода, которые делают следующее:
@@ -43,6 +45,7 @@ public class HomeWork {
 
     public static void main(String[] args) {
         float[] arr = new float[size];
+        float[] arr1 = new float[size];
 
         // расчет массива без потоков
         initArray(arr);
@@ -51,11 +54,12 @@ public class HomeWork {
         System.out.println("Время работы без потоков, сек: " + (float) (System.currentTimeMillis() - timeStart) / 1000);
 
         //расчет массива в потоках
-        initArray(arr);
+        initArray(arr1);
         timeStart = System.currentTimeMillis();
-        createArrayThread(arr);
+        createArrayThread(arr1);
         System.out.println("Время работы в 2 потока, сек: " + (float) (System.currentTimeMillis() - timeStart) / 1000);
 
+        System.out.println("Массивы равны?: " + Arrays.equals(arr, arr1));
     }
 
     /**
@@ -85,16 +89,16 @@ public class HomeWork {
      * @param arr
      */
     public static void createArrayThread(float[] arr) {
-        float[] a1 = new float[h];
-        float[] a2 = new float[h];
+        float[] a1 = new float[size];
+        float[] a2 = new float[size];
 
         // бъем массив на части
         System.arraycopy(arr, 0, a1, 0, h);
-        System.arraycopy(arr, h, a2, 0, h);
+        System.arraycopy(arr, h, a2, h, h);
 
         // запускаем потоки на вычисление каждой части
-        HomeWork.MyThread t0 = new HomeWork.MyThread("MyThread1", a1);
-        HomeWork.MyThread t1 = new HomeWork.MyThread("MyThread2", a2);
+        HomeWork.MyThread t0 = new HomeWork.MyThread("MyThread1", a1,0);
+        HomeWork.MyThread t1 = new HomeWork.MyThread("MyThread2", a2, h);
 
         try {
             // ждем пока выполнятся потоки
@@ -103,7 +107,7 @@ public class HomeWork {
 
             // соединяем массивы в один
             System.arraycopy(a1, 0, arr, 0, h);
-            System.arraycopy(a2, 0, arr, h, h);
+            System.arraycopy(a2, h, arr, h, h);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -112,17 +116,19 @@ public class HomeWork {
     static class MyThread extends Thread {
 
         float[] arr;
+        int offset;
 
-        MyThread(String name, float[] arr) {
+        MyThread(String name, float[] arr, int offset) {
             super(name);
             this.arr = arr;
+            this.offset = offset;
             start();
         }
 
         @Override
         public void run() {
             for (int i = 0; i < h; i++) {
-                arr[i] = (float) (arr[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
+                arr[i+offset] = (float) (arr[i+offset] * Math.sin(0.2f + (i+offset) / 5) * Math.cos(0.2f + (i+offset) / 5) * Math.cos(0.4f + (i+offset) / 2));
             }
         }
     }
@@ -132,7 +138,7 @@ public class HomeWork {
      * @param arr - выводимый массив
      */
     public static void printArray(float[] arr) {
-        for (int i = 0; i < h; i++) {
+        for (int i = 0; i < arr.length; i++) {
             System.out.print(arr[i] + " | ");
         }
         System.out.println("");
