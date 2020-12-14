@@ -3,6 +3,7 @@ package lesson4;
 public class Main {
     public static void main(String[] args) {
 
+        long startTime = System.nanoTime()/1000;
         Worker[] handbookWorker = new Worker[5];
         handbookWorker[0] = new Worker("Петров Иван Иванович", "Директор",
                 "+79001005020", 1000, 28);
@@ -37,6 +38,8 @@ public class Main {
         for (Worker worker : handbookWorker) {
             worker.printInfo();
         }
+
+        System.out.println("Время выполнения скрипта: " + (System.nanoTime()/1000 - startTime));
     }
 
     /**

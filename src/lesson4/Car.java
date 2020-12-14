@@ -28,4 +28,19 @@ public class Car {
         System.out.println("countWheels: " + this.countWheels);
     }
 
+    public String getModel() {
+        return model;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public int getCountWheels() {
+        return countWheels;
+    }
+
+    public static int getProps1() {
+        return props1;
+    }
 }
